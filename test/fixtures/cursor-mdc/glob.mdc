@@ -1,0 +1,11 @@
+---
+description: Backend service conventions
+globs: src/services/**/*.ts
+alwaysApply: false
+---
+
+# Backend services
+
+- All services must export a single default factory function.
+- Validate inputs with zod at the function boundary.
+- Return discriminated-union results, not throws.

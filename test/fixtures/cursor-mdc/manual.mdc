@@ -1,0 +1,11 @@
+---
+alwaysApply: false
+---
+
+# Refactor checklist
+
+Run when @-mentioned for refactor reviews.
+
+- Verify no behavior change in existing tests.
+- Check for unused imports.
+- Confirm public API unchanged.

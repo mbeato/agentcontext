@@ -1,0 +1,10 @@
+---
+description: General coding conventions
+alwaysApply: true
+---
+
+# General
+
+- Use 2-space indentation.
+- Prefer composition over inheritance.
+- No `any` types in new code.
