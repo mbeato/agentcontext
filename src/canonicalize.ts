@@ -13,7 +13,10 @@
 export function canonicalizeMarkdown(s: string): string {
   if (s === "") return "";
   const lines = s.replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/[ \t]+$/g, ""));
-  // Drop trailing empty lines, then add exactly one.
+  // Drop leading empty lines.
+  while (lines.length > 0 && lines[0] === "") lines.shift();
+  // Drop trailing empty lines, then add exactly one trailing \n.
   while (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
+  if (lines.length === 0) return "";
   return lines.join("\n") + "\n";
 }

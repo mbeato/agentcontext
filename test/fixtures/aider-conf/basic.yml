@@ -1,0 +1,6 @@
+model: claude-opus-4-7
+auto-commits: true
+cache-prompts: true
+read:
+  - CONVENTIONS.md
+lint-cmd: bun run lint

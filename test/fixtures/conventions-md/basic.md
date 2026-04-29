@@ -1,0 +1,3 @@
+- Use httpx, not requests.
+- Type hints on every function.
+- Prefer dataclasses over plain dicts for structured data.

@@ -1,0 +1,9 @@
+---
+paths:
+  - "src/**/*.ts"
+---
+
+# Project conventions
+
+- 2-space indentation.
+- Prefer named exports.

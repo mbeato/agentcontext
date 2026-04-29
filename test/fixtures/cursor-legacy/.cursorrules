@@ -1,0 +1,5 @@
+# Project rules
+
+- TypeScript strict mode.
+- 2-space indent.
+- No semicolons.

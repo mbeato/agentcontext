@@ -1,0 +1,4 @@
+# Cascade rules
+
+- Use Bun for all scripts.
+- No node_modules in commits.
