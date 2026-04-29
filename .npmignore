@@ -1,0 +1,9 @@
+test/
+tsconfig.json
+bun.lock
+bun.lockb
+.gitignore
+.git/
+.DS_Store
+*.log
+node_modules/

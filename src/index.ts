@@ -27,3 +27,6 @@ export { renderConventionsMd, aiderConfYaml } from "./renderers/conventions-md.t
 // Pipeline
 export { detect, nodeFsAdapter, type FsAdapter, type DirEntry } from "./detect.ts";
 export { ingest, render, renderMany, type RenderOutput } from "./pipeline.ts";
+
+// MCP
+export { TOOL_DEFINITIONS, readAgentContext, convertAgentContext, runStdioServer } from "./mcp/index.ts";
