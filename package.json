@@ -1,6 +1,6 @@
 {
   "name": "@mbeato/agentcontext",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Normalize AGENTS.md ↔ CLAUDE.md ↔ .cursor/rules ↔ .clinerules ↔ .windsurf/rules — one source of truth for agent context across IDEs and CLIs.",
   "type": "module",
   "bin": {

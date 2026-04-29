@@ -185,6 +185,54 @@ describe("parseAiderConf", () => {
     expect(bundle.rules[0]!.body_md).toContain("Project conventions");
   });
 
+  test("path-traversal guard: absolute read: outside sandbox is blocked", async () => {
+    // Reproduction of SECURITY-AUDIT.md FINDING-01.
+    const content = "read:\n  - /etc/hosts\n";
+    let attemptedRead = false;
+    const bundle = await parseAiderConf({
+      path: "/tmp/poison/.aider.conf.yml",
+      content,
+      readFile: async () => {
+        attemptedRead = true;
+        return "should-never-be-called";
+      },
+    });
+    expect(attemptedRead).toBe(false);
+    expect(bundle.warnings.some((w) => w.includes("blocked: outside sandbox root"))).toBe(true);
+    expect(bundle.rules.length).toBe(0);
+  });
+
+  test("path-traversal guard: ../ traversal outside sandbox is blocked", async () => {
+    const content = "read:\n  - ../../../etc/hosts\n";
+    let attemptedRead = false;
+    const bundle = await parseAiderConf({
+      path: "/tmp/poison/.aider.conf.yml",
+      content,
+      readFile: async () => {
+        attemptedRead = true;
+        return "leak";
+      },
+    });
+    expect(attemptedRead).toBe(false);
+    expect(bundle.warnings.some((w) => w.includes("blocked"))).toBe(true);
+  });
+
+  test("path-traversal guard: opt-out flag allows absolute reads", async () => {
+    const content = "read:\n  - /tmp/some-shared-conventions.md\n";
+    let read_path = "";
+    const bundle = await parseAiderConf({
+      path: "/tmp/.aider.conf.yml",
+      content,
+      readFile: async (p: string) => {
+        read_path = p;
+        return "# shared\n";
+      },
+      allowAbsoluteReads: true,
+    });
+    expect(read_path).toBe("/tmp/some-shared-conventions.md");
+    expect(bundle.rules.length).toBe(1);
+  });
+
   test("missing read: target emits W020", async () => {
     const content = "read: [does-not-exist.md]\n";
     const bundle = await parseAiderConf({
