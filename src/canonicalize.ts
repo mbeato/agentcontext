@@ -1,3 +1,12 @@
+// Strip UTF-8 BOM + normalize CRLF/CR to LF. Call BEFORE any regex parsing
+// (frontmatter, @-imports, etc) — those regexes are LF-only by design and
+// silently mis-parse CRLF input. See QUALITY-REVIEW.md B2 + C1.
+export function normalizeLineEndings(s: string): string {
+  // U+FEFF is the BOM; strip only at offset 0.
+  const noBom = s.charCodeAt(0) === 0xfeff ? s.slice(1) : s;
+  return noBom.replace(/\r\n?/g, "\n");
+}
+
 // Canonicalization for byte-identical round-trip comparison.
 // Round-trip rule: parse(format, X) → render(format, _) → out  must equal canon(X) after canon(out).
 

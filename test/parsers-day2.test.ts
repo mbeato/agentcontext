@@ -2,6 +2,7 @@ import { test, expect, describe } from "bun:test";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve, join } from "node:path";
 
+import { parseCursorMdc } from "../src/parsers/cursor-mdc.ts";
 import { parseGeminiMd } from "../src/parsers/gemini-md.ts";
 import { parseWindsurfMdc } from "../src/parsers/windsurf-mdc.ts";
 import { parseWindsurfLegacy } from "../src/parsers/windsurf-legacy.ts";
@@ -154,6 +155,36 @@ describe("parseClineDir", () => {
     const bundle = await parseClineDir({ path: "/fake/.clinerules", listDir: fakeLister, readFile: fakeReader });
     expect(bundle.warnings.some((w) => w.startsWith("W050"))).toBe(true);
     expect(bundle.rules.length).toBe(1);
+  });
+});
+
+describe("CRLF + BOM regression (QUALITY-REVIEW B2 + C1)", () => {
+  test("cursor-mdc with CRLF line endings still parses frontmatter", async () => {
+    const content = "---\r\nalwaysApply: true\r\n---\r\n\r\n# Project rules\r\n\r\n- TS strict\r\n";
+    const bundle = await parseCursorMdc({ path: ".cursor/rules/x.mdc", content });
+    expect(bundle.rules.length).toBe(1);
+    expect(bundle.rules[0]!.activation.kind).toBe("always");
+    expect(bundle.rules[0]!.body_md).toContain("# Project rules");
+    expect(bundle.rules[0]!.body_md).not.toContain("---");
+  });
+
+  test("cursor-mdc with UTF-8 BOM still parses frontmatter", async () => {
+    const content = "﻿---\nalwaysApply: true\n---\n\n# Body\n";
+    const bundle = await parseCursorMdc({ path: ".cursor/rules/x.mdc", content });
+    expect(bundle.rules[0]!.activation.kind).toBe("always");
+    expect(bundle.rules[0]!.body_md).toContain("# Body");
+  });
+
+  test("windsurf-mdc with CRLF still parses trigger field", async () => {
+    const content = "---\r\ntrigger: glob\r\nglobs: src/**/*.ts\r\n---\r\n\r\n# x\r\n";
+    const bundle = await parseWindsurfMdc({ path: ".windsurf/rules/x.md", content });
+    expect(bundle.rules[0]!.activation.kind).toBe("glob");
+  });
+
+  test("cline-file with CRLF still parses paths field", async () => {
+    const content = "---\r\npaths:\r\n  - \"src/**/*.ts\"\r\n---\r\n\r\n# rules\r\n";
+    const bundle = await parseClineFile({ path: ".clinerules", content });
+    expect(bundle.rules[0]!.activation.kind).toBe("glob");
   });
 });
 

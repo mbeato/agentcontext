@@ -1,5 +1,5 @@
-#!/usr/bin/env bun
 // CLI entry. Three verbs: inspect, convert, sync.
+// (No shebang in source — `bun build --banner` injects #!/usr/bin/env node into dist/cli.js.)
 // No third-party CLI parser — argv is small enough to handle directly.
 
 import { runInspect } from "./inspect.ts";

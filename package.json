@@ -1,10 +1,10 @@
 {
   "name": "@mbeato/agentcontext",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Normalize AGENTS.md ↔ CLAUDE.md ↔ .cursor/rules ↔ .clinerules ↔ .windsurf/rules — one source of truth for agent context across IDEs and CLIs.",
   "type": "module",
   "bin": {
-    "agentcontext": "./src/cli/index.ts"
+    "agentcontext": "./dist/cli.js"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -13,11 +13,14 @@
   },
   "files": [
     "src",
+    "dist",
     "README.md"
   ],
   "scripts": {
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "bun build ./src/cli/index.ts --outfile dist/cli.js --target=node --minify --banner '#!/usr/bin/env node'",
+    "prepublishOnly": "bun run build"
   },
   "keywords": [
     "agents.md",

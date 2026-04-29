@@ -64,6 +64,18 @@ export async function runSync(argv: string[]): Promise<number> {
     return 0;
   }
 
+  // Data-loss guard (QUALITY-REVIEW C4): refuse to overwrite existing files
+  // whose content would change unless the user explicitly says --force.
+  const wouldOverwrite = proposed.filter(
+    (p) => p.existing !== undefined && p.existing !== p.content,
+  );
+  if (wouldOverwrite.length > 0 && !args.force) {
+    console.error(`\nWould overwrite ${wouldOverwrite.length} existing file(s):`);
+    for (const p of wouldOverwrite) console.error(`  ${p.relPath}`);
+    console.error(`\nPass --force to proceed, or remove --write to dry-run again.`);
+    return 1;
+  }
+
   for (const p of proposed) {
     const abs = join(root, p.relPath);
     await mkdir(dirname(abs), { recursive: true });
@@ -73,14 +85,15 @@ export async function runSync(argv: string[]): Promise<number> {
   return 0;
 }
 
-type SyncArgs = { write: boolean; shims: string[]; path?: string };
+type SyncArgs = { write: boolean; force: boolean; shims: string[]; path?: string };
 
 function parseArgs(argv: string[]): SyncArgs {
-  const out: SyncArgs = { write: false, shims: [] };
+  const out: SyncArgs = { write: false, force: false, shims: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     const next = argv[i + 1];
     if (a === "--write") out.write = true;
+    else if (a === "--force") out.force = true;
     else if (a === "--shims" && next) { out.shims = next.split(",").map((s) => s.trim()).filter(Boolean); i++; }
     else if (!a.startsWith("--")) out.path = a;
   }

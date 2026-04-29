@@ -52,12 +52,9 @@ export async function detect(rootPath: string, fs: FsAdapter): Promise<DetectRes
       files.push({ format: "cline-file", path: `${rootPath}/.clinerules` });
     }
   }
-  // Both file AND directory (rare — different on-disk states): warn loudly.
-  // listDir typically returns either-or; if both somehow present, the second
-  // detection picks up via direct existence checks.
-  if (cline?.isDirectory && (await fs.exists(`${rootPath}/.clinerules.md`))) {
-    warnings.push("W001: both .clinerules (file) and .clinerules/ (dir) present");
-  }
+  // (QUALITY-REVIEW C5 removed dead .clinerules.md existence check — a single
+  // POSIX inode entry can't be both a file and a dir simultaneously, so the
+  // file-vs-dir conflict W001 needs to fire from elsewhere if it ever applies.)
 
   // .cursor/rules/*.mdc
   const cursorDir = rootByName.get(".cursor");

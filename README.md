@@ -71,9 +71,9 @@ There's a separate package `@mbeato/agentcontext-mcp` that exposes two MCP tools
 
 ## Hosted endpoint
 
-Try it without installing: <https://agentsmd.apimesh.xyz>
+`https://agentsmd.apimesh.xyz` — landing + `POST /normalize` (deploying this week — until then, use the CLI or MCP).
 
-`POST /normalize` accepts `{ source_format, content, targets }` and returns `{ files, warnings, detected_formats }`. Free, rate-limited.
+`POST /normalize` will accept `{ source_format, content, targets }` and return `{ files, warnings, detected_formats }`. Free, rate-limited.
 
 ## Round-trip guarantee
 
@@ -81,7 +81,7 @@ Lossless pairs (e.g., `agents-md ↔ agents-md`, `cursor-mdc ↔ cursor-mdc`, `c
 
 ## Status
 
-v0.1 — early. Working CLI + MCP + library + hosted endpoint. Not yet: walked-up nested `AGENTS.md` / `CLAUDE.md`, `.claude/rules/*.md` path-scoped rules, GitHub App for auto-PR sync.
+v0.1.2 — early. Working CLI + MCP + library. Hosted endpoint deploying this week. Not yet: walked-up nested `AGENTS.md` / `CLAUDE.md`, `.claude/rules/*.md` path-scoped rules, GitHub App for auto-PR sync.
 
 ## License
 

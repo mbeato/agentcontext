@@ -13,7 +13,7 @@
 import { parse as parseYaml } from "yaml";
 import { basename } from "node:path";
 import { type Bundle, type Rule, type Activation, ruleId, ruleMetadata, assertValidRule, emptyBundle } from "../ir.ts";
-import { canonicalizeMarkdown } from "../canonicalize.ts";
+import { canonicalizeMarkdown, normalizeLineEndings } from "../canonicalize.ts";
 import { formatWarning } from "../warnings.ts";
 
 export type ParseWindsurfMdcInput = {
@@ -29,9 +29,11 @@ const GLOBAL_LIMIT = 6_000;
 export async function parseWindsurfMdc(input: ParseWindsurfMdcInput): Promise<Bundle> {
   const bundle = emptyBundle();
   let frontmatter: Record<string, unknown> = {};
-  let body = input.content;
+  // CRLF + BOM normalization (QUALITY-REVIEW B2 + C1).
+  const normalized = normalizeLineEndings(input.content);
+  let body = normalized;
 
-  const m = input.content.match(FRONTMATTER_RE);
+  const m = normalized.match(FRONTMATTER_RE);
   if (m) {
     try {
       const parsed = parseYaml(m[1]!);
@@ -39,7 +41,7 @@ export async function parseWindsurfMdc(input: ParseWindsurfMdcInput): Promise<Bu
     } catch {
       bundle.warnings.push("W099: windsurf-mdc frontmatter parse failed; treating as body");
     }
-    body = input.content.slice(m[0].length);
+    body = normalized.slice(m[0].length);
   }
 
   const body_md = canonicalizeMarkdown(body);

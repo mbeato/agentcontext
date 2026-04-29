@@ -7,7 +7,7 @@
 import { parse as parseYaml } from "yaml";
 import { join } from "node:path";
 import { type Bundle, type Rule, type Activation, ruleId, ruleMetadata, assertValidRule, emptyBundle } from "../ir.ts";
-import { canonicalizeMarkdown } from "../canonicalize.ts";
+import { canonicalizeMarkdown, normalizeLineEndings } from "../canonicalize.ts";
 import { formatWarning } from "../warnings.ts";
 
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n?/;
@@ -39,7 +39,9 @@ export async function parseClineDir(input: ParseClineDirInput): Promise<Bundle> 
   });
 
   for (const [i, f] of files.entries()) {
-    const content = await input.readFile(f.abs);
+    const raw = await input.readFile(f.abs);
+    // CRLF + BOM normalization (QUALITY-REVIEW B2 + C1).
+    const content = normalizeLineEndings(raw);
     let frontmatter: Record<string, unknown> = {};
     let body = content;
     const m = content.match(FRONTMATTER_RE);

@@ -4,16 +4,18 @@
 
 import { parse as parseYaml } from "yaml";
 import { type Bundle, type Rule, type Activation, ruleId, ruleMetadata, assertValidRule, emptyBundle } from "../ir.ts";
-import { canonicalizeMarkdown } from "../canonicalize.ts";
+import { canonicalizeMarkdown, normalizeLineEndings } from "../canonicalize.ts";
 
 const FRONTMATTER_RE = /^---\n([\s\S]*?)\n---\n?/;
 
 export async function parseClineFile(input: { path: string; content: string }): Promise<Bundle> {
   const bundle = emptyBundle();
   let frontmatter: Record<string, unknown> = {};
-  let body = input.content;
+  // CRLF + BOM normalization (QUALITY-REVIEW B2 + C1).
+  const normalized = normalizeLineEndings(input.content);
+  let body = normalized;
 
-  const m = input.content.match(FRONTMATTER_RE);
+  const m = normalized.match(FRONTMATTER_RE);
   if (m) {
     try {
       const parsed = parseYaml(m[1]!);
@@ -21,7 +23,7 @@ export async function parseClineFile(input: { path: string; content: string }): 
     } catch {
       bundle.warnings.push("W099: cline-file frontmatter parse failed");
     }
-    body = input.content.slice(m[0].length);
+    body = normalized.slice(m[0].length);
   }
 
   const body_md = canonicalizeMarkdown(body);
